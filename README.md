@@ -1,4 +1,4 @@
-# CethoENTFW
+# CethoENTFW Connection PostgreSQL
 
 1. Install the Npgsql.EntityFrameworkCore.PostgreSQL﻿ package. Note its Microsoft.EntityFrameworkCore package reference. That Entity Framework’s version must match the version that your solution uses (currently 6.0.x).
 2. Change your application’s connection string.
