@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Cetho.Blazor.Server.props" />
+</Project>

@@ -12,8 +12,8 @@ namespace Cetho.Module.BusinessObjects;
 // For details, please refer to https://supportcenter.devexpress.com/ticket/details/t933891.
 public class CethoContextInitializer : DbContextTypesInfoInitializerBase {
 	protected override DbContext CreateDbContext() {
-        var optionsBuilder = new DbContextOptionsBuilder<CethoEFCoreDbContext>();
-            optionsBuilder.UseNpgsql(";")            
+		var optionsBuilder = new DbContextOptionsBuilder<CethoEFCoreDbContext>()
+            .UseNpgsql(";")
             .UseChangeTrackingProxies()
             .UseObjectSpaceLinkProxies();
         return new CethoEFCoreDbContext(optionsBuilder.Options);
@@ -23,22 +23,34 @@ public class CethoContextInitializer : DbContextTypesInfoInitializerBase {
 public class CethoDesignTimeDbContextFactory : IDesignTimeDbContextFactory<CethoEFCoreDbContext> {
 	public CethoEFCoreDbContext CreateDbContext(string[] args) {
 		throw new InvalidOperationException("Make sure that the database connection string and connection provider are correct. After that, uncomment the code below and remove this exception.");
-        var optionsBuilder = new DbContextOptionsBuilder<CethoEFCoreDbContext>();
-        optionsBuilder.UseSqlServer("Host=localhost;Database=cetho;Username=postgres;Password=1");
+		var optionsBuilder = new DbContextOptionsBuilder<CethoEFCoreDbContext>();
+		optionsBuilder.UseNpgsql("Host=localhost;Database=cetho;Username=postgres;Password=1");
         optionsBuilder.UseChangeTrackingProxies();
         optionsBuilder.UseObjectSpaceLinkProxies();
-        return new CethoEFCoreDbContext(optionsBuilder.Options);
-    }
+		return new CethoEFCoreDbContext(optionsBuilder.Options);
+	}
 }
 [TypesInfoInitializer(typeof(CethoContextInitializer))]
 public class CethoEFCoreDbContext : DbContext {
 	public CethoEFCoreDbContext(DbContextOptions<CethoEFCoreDbContext> options) : base(options) {
 	}
 	//public DbSet<ModuleInfo> ModulesInfo { get; set; }
+	public DbSet<ModelDifference> ModelDifferences { get; set; }
+	public DbSet<ModelDifferenceAspect> ModelDifferenceAspects { get; set; }
+	public DbSet<PermissionPolicyRole> Roles { get; set; }
+	public DbSet<Cetho.Module.BusinessObjects.ApplicationUser> Users { get; set; }
+    public DbSet<Cetho.Module.BusinessObjects.ApplicationUserLoginInfo> UserLoginInfos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
         modelBuilder.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
+        modelBuilder.Entity<Cetho.Module.BusinessObjects.ApplicationUserLoginInfo>(b => {
+            b.HasIndex(nameof(DevExpress.ExpressApp.Security.ISecurityUserLoginInfo.LoginProviderName), nameof(DevExpress.ExpressApp.Security.ISecurityUserLoginInfo.ProviderUserKey)).IsUnique();
+        });
+        modelBuilder.Entity<ModelDifference>()
+            .HasMany(t => t.Aspects)
+            .WithOne(t => t.Owner)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

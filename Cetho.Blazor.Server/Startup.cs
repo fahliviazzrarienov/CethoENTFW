@@ -1,4 +1,5 @@
-﻿using DevExpress.ExpressApp.ApplicationBuilder;
+﻿using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor.Services;
 using DevExpress.Persistent.Base;
@@ -6,6 +7,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.EntityFrameworkCore;
 using Cetho.Blazor.Server.Services;
+using DevExpress.Persistent.BaseImpl.EF.PermissionPolicy;
+using DevExpress.Data.Filtering;
+using DevExpress.ExpressApp;
+using System.Security.Principal;
+using System.Security.Claims;
+using Microsoft.Identity.Web;
 
 namespace Cetho.Blazor.Server;
 
@@ -28,10 +35,14 @@ public class Startup {
         services.AddXaf(Configuration, builder => {
             builder.UseApplication<CethoBlazorApplication>();
             builder.Modules
+                .AddConditionalAppearance()
+                .AddValidation(options => {
+                    options.AllowValidationDetailsAccess = false;
+                })
                 .Add<Cetho.Module.CethoModule>()
             	.Add<CethoBlazorModule>();
             builder.ObjectSpaceProviders
-                .AddEFCore(options => options.PreFetchReferenceProperties())
+                .AddSecuredEFCore(options => options.PreFetchReferenceProperties())
                     .WithDbContext<Cetho.Module.BusinessObjects.CethoEFCoreDbContext>((serviceProvider, options) => {
                         // Uncomment this code to use an in-memory database. This database is recreated each time the server starts. With the in-memory database, you don't need to make a migration when the data model is changed.
                         // Do not use this code in production environment to avoid data loss.
@@ -53,7 +64,44 @@ public class Startup {
                         options.UseLazyLoadingProxies();
                     })
                 .AddNonPersistent();
+            builder.Security
+                .UseIntegratedMode(options => {
+                    options.RoleType = typeof(PermissionPolicyRole);
+                    // ApplicationUser descends from PermissionPolicyUser and supports the OAuth authentication. For more information, refer to the following topic: https://docs.devexpress.com/eXpressAppFramework/402197
+                    // If your application uses PermissionPolicyUser or a custom user type, set the UserType property as follows:
+                    options.UserType = typeof(Cetho.Module.BusinessObjects.ApplicationUser);
+                    // ApplicationUserLoginInfo is only necessary for applications that use the ApplicationUser user type.
+                    // If you use PermissionPolicyUser or a custom user type, comment out the following line:
+                    options.UserLoginInfoType = typeof(Cetho.Module.BusinessObjects.ApplicationUserLoginInfo);
+                    options.Events.OnSecurityStrategyCreated += securityStrategy => {
+                        // Use the 'PermissionsReloadMode.NoCache' option to load the most recent permissions from the database once
+                        // for every DbContext instance when secured data is accessed through this instance for the first time.
+                        // Use the 'PermissionsReloadMode.CacheOnFirstAccess' option to reduce the number of database queries.
+                        // In this case, permission requests are loaded and cached when secured data is accessed for the first time
+                        // and used until the current user logs out. 
+                        // See the following article for more details: https://docs.devexpress.com/eXpressAppFramework/DevExpress.ExpressApp.Security.SecurityStrategy.PermissionsReloadMode.
+                        ((SecurityStrategy)securityStrategy).PermissionsReloadMode = PermissionsReloadMode.NoCache;
+                    };
+                })
+                .AddPasswordAuthentication(options => {
+                    options.IsSupportChangePassword = true;
+                })
+                .AddWindowsAuthentication(options => {
+                    options.CreateUserAutomatically();
+                })
+                .AddAuthenticationProvider<CustomAuthenticationProvider>();
         });
+        var authentication = services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
+        authentication
+            .AddCookie(options => {
+                options.LoginPath = "/LoginPage";
+            });
+        //Configure OAuth2 Identity Providers based on your requirements. For more information, see
+        //https://docs.devexpress.com/eXpressAppFramework/402197/task-based-help/security/how-to-use-active-directory-and-oauth2-authentication-providers-in-blazor-applications
+        //https://developers.google.com/identity/protocols/oauth2
+        //https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+        //https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow
+        authentication.AddMicrosoftIdentityWebApp(Configuration, configSectionName: "Authentication:AzureAd", cookieScheme: null);
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,6 +118,8 @@ public class Startup {
         app.UseRequestLocalization();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.UseXaf();
         app.UseEndpoints(endpoints => {
             endpoints.MapXafEndpoints();

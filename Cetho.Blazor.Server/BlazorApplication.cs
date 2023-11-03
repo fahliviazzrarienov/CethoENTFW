@@ -1,10 +1,13 @@
 ﻿using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.ApplicationBuilder;
 using DevExpress.ExpressApp.Blazor;
+using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.Security.ClientServer;
 using DevExpress.ExpressApp.SystemModule;
 using Cetho.Module.BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 using DevExpress.ExpressApp.EFCore;
+using DevExpress.EntityFrameworkCore.Security;
 
 namespace Cetho.Blazor.Server;
 

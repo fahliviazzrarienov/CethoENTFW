@@ -1,0 +1,12 @@
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\bin\Debug\net6.0\Cetho.Module.deps.json
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\bin\Debug\net6.0\Cetho.Module.dll
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\bin\Debug\net6.0\Cetho.Module.pdb
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.csproj.AssemblyReference.cache
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.AssemblyInfoInputs.cache
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.AssemblyInfo.cs
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.csproj.CoreCompileInputs.cache
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.dll
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\refint\Cetho.Module.dll
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\Cetho.Module.pdb
+C:\Users\Rienov\source\repos\CethoENTFW\Cetho\Cetho.Module\obj\Debug\net6.0\ref\Cetho.Module.dll
